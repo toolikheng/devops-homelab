@@ -88,19 +88,29 @@ install:
 # Phase 1 - Infrastructure
 infra-up:
 	@$(ECHO) "$(BLUE)Starting Docker nodes...$(NC)"
-	@cd $(INFRA_DIR)/nodes && docker-compose up -d
-	@sleep 2
-	@$(ECHO) "$(GREEN)✓ Nodes started$(NC)"
+	@docker-compose -f "$(INFRA_DIR)/nodes/docker-compose.yml" up -d
+	@$(ECHO) "$(BLUE)Waiting for nodes to be SSH-ready...$(NC)"
+	@for node in devops-node1 devops-node2 devops-node3; do \
+		echo "Checking $$node..."; \
+		for i in {1..60}; do \
+			if docker exec $$node ssh-keyscan localhost >/dev/null 2>&1; then \
+				echo "✓ $$node is ready"; \
+				break; \
+			fi; \
+			sleep 1; \
+		done; \
+	done
+	@$(ECHO) "$(GREEN)✓ All nodes started and SSH-ready$(NC)"
 	@docker ps --filter "label=devops.role=node" --format "table {{.Names}}\t{{.Status}}"
 
 infra-down:
 	@$(ECHO) "$(BLUE)Stopping Docker nodes...$(NC)"
-	@cd $(INFRA_DIR)/nodes && docker-compose down
+	@docker-compose -f "$(INFRA_DIR)/nodes/docker-compose.yml" down
 	@$(ECHO) "$(GREEN)✓ Nodes stopped$(NC)"
 
 provision:
 	@$(ECHO) "$(BLUE)Running Ansible playbook...$(NC)"
-	@cd $(ANSIBLE_DIR) && ansible-playbook playbooks/site.yml -v
+	@cd "$(ANSIBLE_DIR)" && ansible-playbook playbooks/site.yml -v
 
 # Phase 2 - Application
 test:

@@ -88,6 +88,7 @@ temp/
 
 # Session memory (Claude Code only)
 CLAUDE.md
+.agents
 
 # Build artifacts
 *.tar.gz
