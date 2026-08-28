@@ -110,7 +110,14 @@ infra-down:
 
 provision:
 	@$(ECHO) "$(BLUE)Running Ansible playbook...$(NC)"
-	@cd "$(ANSIBLE_DIR)" && ansible-playbook playbooks/site.yml -v
+	@docker run --rm \
+		-v "$(REPO_ROOT):/playbook" \
+		-v "$(HOME)/.ssh:/root/.ssh:ro" \
+		--network nodes_homelab \
+		--entrypoint ansible-playbook \
+		ansible:latest \
+		-i /playbook/ansible/inventory/docker-nodes.yml \
+		/playbook/ansible/playbooks/site.yml -v
 
 # Phase 2 - Application
 test:
