@@ -122,16 +122,16 @@ provision:
 # Phase 2 - Application
 test:
 	@$(ECHO) "$(BLUE)Running tests...$(NC)"
-	@cd $(APP_DIR) && python3 -m pytest tests/ -v --tb=short
+	@cd "$(APP_DIR)" && python -m pytest tests/ -v --tb=short
 
 lint:
 	@$(ECHO) "$(BLUE)Running linters...$(NC)"
-	@cd $(APP_DIR) && python3 -m ruff check . && echo "✓ ruff"
-	@cd $(APP_DIR) && python3 -m mypy src/app/ && echo "✓ mypy"
+	@cd "$(APP_DIR)" && python -m ruff check . && echo "✓ ruff"
+	@cd "$(APP_DIR)" && python -m mypy src/app/ --ignore-missing-imports && echo "✓ mypy"
 
 run-app:
 	@$(ECHO) "$(BLUE)Running FastAPI app...$(NC)"
-	@cd $(APP_DIR) && python3 -m uvicorn src.app.main:app --host 0.0.0.0 --port 8000 --reload
+	@cd "$(APP_DIR)" && python -m uvicorn src.app.main:app --host 0.0.0.0 --port 8000 --reload
 
 # Phase 3 - Containerize
 build:
